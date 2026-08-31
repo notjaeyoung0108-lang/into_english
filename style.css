@@ -1,0 +1,143 @@
+/* into_english — 공부노트(anki_civil_note)의 뼈대를 그대로 쓴다.
+   머리 · 본문 · 아래 탭 셋. 탭은 웹툰 / 문장 / 튜터. */
+
+:root{ --bg:#f4f5f7; --card:#fff; --ink:#1e242b; --dim:#6b747d; --line:#e2e5e9;
+       --ok:#2f7d5d; --accent:#2f5d8a; --warn:#a8552f; --bad:#a33a3a;
+       --cell:#e6e8ea;
+       --shadow:0 1px 3px rgba(30,36,43,.07), 0 12px 28px rgba(30,36,43,.11);
+       --shadow-s:0 1px 2px rgba(30,36,43,.10), 0 4px 10px rgba(30,36,43,.10);
+       --tabh:calc(52px + env(safe-area-inset-bottom)); }
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#14181c; --card:#1c2126; --ink:#e6e9ec; --dim:#98a1aa; --line:#2b3238;
+         --accent:#7aa6d2; --ok:#5aab86; --bad:#d1746f; --warn:#d19a6f;
+         --cell:#262c32;
+         --shadow:0 1px 3px rgba(0,0,0,.45), 0 12px 30px rgba(0,0,0,.55);
+         --shadow-s:0 1px 2px rgba(0,0,0,.4), 0 4px 10px rgba(0,0,0,.4); } }
+
+*{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html,body{ margin:0; background:var(--bg); color:var(--ink);
+  font-family:"Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  font-size:16px; line-height:1.6; }
+
+header{ position:sticky; top:0; z-index:10; background:var(--card);
+  border-bottom:1px solid var(--line); padding:13px 10px;
+  padding-top:calc(13px + env(safe-area-inset-top));
+  display:flex; align-items:center; gap:6px; }
+header b{ flex:1; text-align:center; font-size:19px; font-weight:normal;
+  letter-spacing:-.01em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+header button{ background:none; border:0; color:var(--dim); font:inherit; font-size:13.5px;
+  cursor:pointer; padding:6px 8px; border-radius:8px; display:flex; align-items:center;
+  gap:5px; min-width:62px; }
+header button:disabled{ visibility:hidden; }
+header #gear{ justify-content:flex-end; }
+.tri{ width:0; height:0; border-right:6px solid currentColor;
+  border-top:4.5px solid transparent; border-bottom:4.5px solid transparent; }
+
+main{ max-width:720px; margin:0 auto; padding:12px 14px calc(20px + var(--tabh)); }
+
+#tabs{ position:fixed; left:0; right:0; bottom:0; z-index:20; display:flex;
+  background:var(--card); border-top:1px solid var(--line);
+  padding-bottom:env(safe-area-inset-bottom); }
+#tabs a{ flex:1; display:flex; align-items:center; justify-content:center; gap:5px;
+  padding:15px 0 16px; text-decoration:none;
+  color:var(--dim); font-size:16px; line-height:1.2; letter-spacing:-.01em; }
+#tabs a.on{ color:var(--accent); }
+#tabs a .n{ display:inline-block; min-width:18px; padding:1px 5px;
+  border-radius:9px; background:var(--accent); color:#fff; font-size:10.5px;
+  line-height:1.45; transform:translateY(-1px); }
+
+/* ── 공통 조각 ── */
+.tiles{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:12px; }
+.tile{ background:var(--card); border:1px solid var(--line); border-radius:14px;
+  padding:11px 10px; box-shadow:var(--shadow-s); text-align:center; }
+.tile .k{ font-size:11.5px; color:var(--dim); }
+.tile .v{ font-size:21px; line-height:1.25; font-variant-numeric:tabular-nums; }
+.sect{ font-size:12.5px; color:var(--dim); margin:16px 2px 7px; }
+.note{ font-size:12.5px; color:var(--dim); margin-top:9px; line-height:1.55; }
+.empty{ text-align:center; color:var(--dim); font-size:13.5px; padding:26px 10px; }
+.cnt{ text-align:center; font-size:12.5px; color:var(--dim); margin-bottom:9px; }
+.cnt b{ color:var(--ink); font-weight:normal; font-variant-numeric:tabular-nums; }
+
+.acts{ position:sticky; bottom:calc(8px + var(--tabh)); margin-top:12px; }
+.flip{ width:100%; border:0; border-radius:14px; background:var(--ink); color:var(--bg);
+  padding:15px 4px; font:inherit; font-size:15.5px; cursor:pointer;
+  box-shadow:var(--shadow); }
+#grades{ display:grid; grid-template-columns:repeat(3,1fr); gap:6px; }
+#grades button{ border:0; border-radius:14px; padding:12px 4px; font:inherit;
+  cursor:pointer; box-shadow:var(--shadow); }
+#grades button:active{ transform:translateY(1px); }
+#grades b{ display:block; font-size:14.5px; font-weight:700; }
+#grades span{ display:block; font-size:10.5px; margin-top:2px; opacity:.72; }
+#grades .g1{ background:#eb8d8d; color:#ba1a1a; }
+#grades .g2{ background:#d3d3d3; color:#1e242b; }
+#grades .g3{ background:#94d197; color:#118c17; }
+
+.tools{ display:flex; gap:8px; flex-wrap:wrap; margin-top:11px; }
+.tools button{ border:1px solid var(--line); background:var(--card); color:var(--ink);
+  border-radius:11px; padding:9px 14px; font:inherit; font-size:14px; cursor:pointer; }
+.tools button.pri{ border-color:var(--accent); background:var(--accent); color:#fff; }
+label.row{ display:block; font-size:12.5px; color:var(--dim); margin:10px 0 3px; }
+input[type=text]{ width:100%; padding:10px 11px; border-radius:11px;
+  border:1px solid var(--line); background:var(--bg); color:var(--ink); font:inherit;
+  font-size:14px; }
+
+/* ── 웹툰 ── */
+.eplist{ display:grid; gap:10px; }
+.ep{ display:flex; gap:12px; align-items:center; text-decoration:none; color:inherit;
+  background:var(--card); border:1px solid var(--line); border-radius:14px;
+  padding:10px; box-shadow:var(--shadow-s); }
+.ep img{ width:84px; height:84px; object-fit:cover; object-position:center top;
+  border-radius:11px; background:var(--cell); flex:none; }
+.ep .lab{ font-size:12.5px; color:var(--dim); }
+.ep .ti{ font-size:17px; line-height:1.35; letter-spacing:-.01em; }
+.ep .n{ font-size:12px; color:var(--dim); font-variant-numeric:tabular-nums; }
+
+/* 컷은 붙여 흘린다 — 웹툰은 한 장씩이 아니라 한 줄기로 읽힌다. */
+.strip{ margin:0 -14px; background:#000; }
+.strip img{ display:block; width:100%; }
+.epnav{ display:flex; gap:8px; margin-top:12px; }
+.epnav a{ flex:1; text-align:center; text-decoration:none; color:var(--ink);
+  border:1px solid var(--line); background:var(--card); border-radius:12px;
+  padding:12px 4px; font-size:14px; }
+
+/* ── 문장 카드 ── */
+.fcard{ background:var(--card); border:1px solid var(--line); border-radius:18px;
+  padding:16px; box-shadow:var(--shadow); overflow:hidden; }
+.fcard .meta{ font-size:11.5px; color:var(--dim); margin-bottom:10px;
+  display:flex; gap:6px; flex-wrap:wrap; }
+.fcard .meta span{ border:1px solid var(--line); border-radius:8px; padding:1px 7px; }
+.fcard .pic{ width:calc(100% + 32px); margin:0 -16px 14px; display:block; background:var(--cell); }
+.fq .ko{ font-size:22px; line-height:1.45; letter-spacing:-.01em; }
+.fq .sit{ font-size:13px; color:var(--dim); margin-top:8px; }
+.fa .en{ font-size:23px; line-height:1.4; letter-spacing:-.01em; }
+.fa .ko{ font-size:15px; color:var(--dim); margin-top:6px; }
+.chunk{ margin-top:14px; border-top:1px solid var(--line); padding-top:12px; }
+.chunk .c{ font-size:16px; color:var(--accent); }
+.chunk .ck{ font-size:13.5px; color:var(--dim); margin-top:2px; }
+.chunk .nt{ font-size:13.5px; margin-top:9px; line-height:1.6; }
+.play{ margin-top:13px; border:1px solid var(--line); background:var(--bg);
+  color:var(--ink); border-radius:12px; padding:10px 15px; font:inherit;
+  font-size:14px; cursor:pointer; }
+
+.slist{ display:grid; gap:8px; }
+.srow{ background:var(--card); border:1px solid var(--line); border-radius:13px;
+  padding:11px 13px; box-shadow:var(--shadow-s); }
+.srow .en{ font-size:15.5px; line-height:1.4; }
+.srow .ko{ font-size:13px; color:var(--dim); margin-top:2px; }
+
+/* ── 튜터 ── */
+.call{ background:var(--card); border:1px solid var(--line); border-radius:20px;
+  padding:30px 18px 24px; box-shadow:var(--shadow); text-align:center; }
+.call .who{ font-size:24px; letter-spacing:-.01em; margin-top:14px; }
+.call .sub{ font-size:13.5px; color:var(--dim); margin-top:6px; line-height:1.6; }
+.call .ring{ width:112px; height:112px; border-radius:50%; margin:0 auto;
+  background:var(--cell); display:flex; align-items:center; justify-content:center;
+  font-size:44px; animation:ring 1.6s ease-in-out infinite; }
+@keyframes ring{ 0%,100%{ transform:rotate(-3deg); } 50%{ transform:rotate(3deg); } }
+@media (prefers-reduced-motion: reduce){ .call .ring{ animation:none; } }
+.accept{ display:block; width:100%; margin-top:22px; border:0; border-radius:16px;
+  background:#2f9e5d; color:#fff; padding:17px 4px; font:inherit; font-size:17px;
+  cursor:pointer; box-shadow:var(--shadow); text-decoration:none; }
+.callnote{ font-size:12.5px; color:var(--dim); margin-top:14px; line-height:1.65; }
+.callnote code{ background:var(--cell); border-radius:6px; padding:1px 6px;
+  font-size:12px; }
