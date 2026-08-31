@@ -77,13 +77,11 @@ $("gear").onclick = () => { location.hash = "#settings"; };
 function webtoonHome() {
   head("웹툰", false);
   if (!EPS.length) return $("app").innerHTML = `<div class="empty">올린 에피소드가 없습니다.</div>`;
-  /* 표지는 가장 최근 화의 대표컷을 쓴다 — 지금 어디까지 그렸는지가 첫 인상이다. */
-  const top = [...EPS].reverse().find(e => !e.id.includes("digest")) || EPS[0];
   $("app").innerHTML = `
     <div class="hero">
       <div class="band"></div>
       <div class="in">
-        <img src="assets/webtoon/${esc(top.id)}/${esc(top.cover)}" alt="">
+        <img src="${esc(ver("assets/webtoon/cover.webp"))}" alt="">
         <div class="wt"><b>차현의 게임일기</b>
           <span>전체 ${EPS.length}화</span></div>
       </div>
