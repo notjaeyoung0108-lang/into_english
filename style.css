@@ -6,6 +6,15 @@
 @font-face{ font-family:"BMJUA"; src:url("assets/font/BMJUA.woff2") format("woff2");
   font-weight:normal; font-style:normal; font-display:swap; }
 
+/* 카드 속 글은 프리텐다드다 (길형진 · SIL OFL 1.1). 주아체는 앱의 목소리고,
+   외울 문장은 획이 고른 글꼴로 읽어야 철자가 눈에 남는다. */
+@font-face{ font-family:"Pretendard";
+  src:url("assets/font/Pretendard-Regular.woff2") format("woff2");
+  font-weight:400; font-style:normal; font-display:swap; }
+@font-face{ font-family:"Pretendard";
+  src:url("assets/font/Pretendard-SemiBold.woff2") format("woff2");
+  font-weight:600; font-style:normal; font-display:swap; }
+
 :root{ --bg:#f4f5f7; --card:#fff; --ink:#1e242b; --dim:#6b747d; --line:#e2e5e9;
        --ok:#2f7d5d; --accent:#2f5d8a; --warn:#a8552f; --bad:#a33a3a;
        --cell:#e6e8ea;
@@ -110,9 +119,11 @@ input[type=text]{ width:100%; padding:10px 11px; border-radius:11px;
 
 /* ── 문장 카드 ── */
 .fcard{ background:var(--card); border:1px solid var(--line); border-radius:18px;
-  padding:16px; box-shadow:var(--shadow); overflow:hidden; }
+  padding:16px; box-shadow:var(--shadow); overflow:hidden;
+  font-family:"Pretendard","Apple SD Gothic Neo",system-ui,sans-serif;
+  text-align:center; }
 .fcard .meta{ font-size:11.5px; color:var(--dim); margin-bottom:10px;
-  display:flex; gap:6px; flex-wrap:wrap; }
+  display:flex; gap:6px; flex-wrap:wrap; justify-content:center; }
 .fcard .meta span{ border:1px solid var(--line); border-radius:8px; padding:1px 7px; }
 .fcard .pic{ width:calc(100% + 32px); height:auto; margin:0 -16px 14px;
   display:block; background:var(--cell); }

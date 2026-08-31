@@ -136,10 +136,9 @@ function sentenceRun() {
 
   const pic = it.img
     ? `<img class="pic" src="assets/sentence/${esc(it.img)}" alt="" loading="lazy">` : "";
-  const meta = `<div class="meta">
-      ${it.register ? `<span>${esc(it.register)}</span>` : ""}
-      ${it.speaker ? `<span>${esc(it.speaker)}</span>` : ""}
-    </div>`;
+  /* 말투(casual · business)만 남긴다 — 화자 이름은 그림 만들 때 쓰는 값이지
+     외우는 사람이 알아야 할 것이 아니다. */
+  const meta = it.register ? `<div class="meta"><span>${esc(it.register)}</span></div>` : "";
 
   /* 앞면은 영어 문장만 — 그림도 뜻도 없다. 그림이 앞에 있으면 뜻이 먼저 떠올라
      외웠는지 아닌지를 스스로 속이게 된다. */
