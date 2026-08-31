@@ -84,8 +84,8 @@ function webtoonHome() {
       <div class="band"></div>
       <div class="in">
         <img src="assets/webtoon/${esc(top.id)}/${esc(top.cover)}" alt="">
-        <div class="wt"><b>CROWN OF ASH</b>
-          <span>한요일 · 전체 ${EPS.length}화</span></div>
+        <div class="wt"><b>차현의 게임일기</b>
+          <span>전체 ${EPS.length}화</span></div>
       </div>
     </div>
     <div class="epwrap"><div class="eplist">` + [...EPS].reverse().map(e => `
