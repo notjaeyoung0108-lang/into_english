@@ -17,7 +17,8 @@
        --cell:#e6e8ea;
        --shadow:0 1px 3px rgba(30,36,43,.07), 0 12px 28px rgba(30,36,43,.11);
        --shadow-s:0 1px 2px rgba(30,36,43,.10), 0 4px 10px rgba(30,36,43,.10);
-       --tabh:calc(52px + env(safe-area-inset-bottom)); }
+       --tabh:calc(52px + env(safe-area-inset-bottom));
+       --headh:calc(56px + env(safe-area-inset-top)); }
 @media (prefers-color-scheme: dark){
   :root{ --bg:#14181c; --card:#1c2126; --ink:#e6e9ec; --dim:#98a1aa; --line:#2b3238;
          --accent:#7aa6d2; --ok:#5aab86; --bad:#d1746f; --warn:#d19a6f;
@@ -94,15 +95,22 @@ input[type=text]{ width:100%; padding:10px 11px; border-radius:11px;
   font-size:14px; }
 
 /* ── 웹툰 ── */
-/* 표지는 페이지 흐름 안에 둔다 — position 으로 붙잡지 않아야 내리는 만큼
-   그대로 밀려 올라가 사라진다. 좌우로는 본문 여백을 넘어 화면 끝까지 찬다. */
-.hero{ margin:-12px -14px 14px; padding:18px 14px 20px; background:#b9e0fd; }
+/* 표지는 머리 밑에 붙어 그 자리에 머문다 — 회차 목록이 그 위로 올라와 덮으면서
+   사라진다. sticky 로 세우고 목록에 불투명 바탕을 줘야 이 순서가 지켜진다. */
+.hero{ position:sticky; top:var(--headh); z-index:0;
+  margin:-12px -14px 0; }
+/* 색 띠는 그림의 윗동만 감싼다 — 아랫동은 페이지 바탕 위에 뜬다. */
+.hero .band{ position:absolute; left:0; right:0; top:0; height:56%; background:#b9e0fd; }
+.hero .in{ position:relative; padding:18px 14px 20px; }
 .hero img{ display:block; width:100%; max-width:420px; margin:0 auto;
   aspect-ratio:3/2; object-fit:cover; object-position:center 20%;
-  border-radius:14px; background:var(--cell); }
-.hero .wt{ max-width:420px; margin:14px auto 0; color:#12303f; }
+  border-radius:14px; background:var(--cell); box-shadow:var(--shadow); }
+.hero .wt{ max-width:420px; margin:14px auto 0; }
 .hero .wt b{ display:block; font-size:23px; font-weight:normal; letter-spacing:-.01em; }
-.hero .wt span{ font-size:13px; opacity:.72; }
+.hero .wt span{ font-size:13px; color:var(--dim); }
+
+/* 목록이 표지를 덮고 올라가는 쪽이다 — 바탕이 비면 표지가 비쳐 보인다. */
+.epwrap{ position:relative; z-index:1; background:var(--bg); padding-top:14px; }
 
 .eplist{ display:grid; gap:10px; }
 .ep{ display:flex; gap:12px; align-items:center; text-decoration:none; color:inherit;

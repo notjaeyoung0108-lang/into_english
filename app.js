@@ -78,11 +78,14 @@ function webtoonHome() {
   const top = [...EPS].reverse().find(e => !e.id.includes("digest")) || EPS[0];
   $("app").innerHTML = `
     <div class="hero">
-      <img src="assets/webtoon/${esc(top.id)}/${esc(top.cover)}" alt="">
-      <div class="wt"><b>CROWN OF ASH</b>
-        <span>한요일 · 전체 ${EPS.length}화</span></div>
+      <div class="band"></div>
+      <div class="in">
+        <img src="assets/webtoon/${esc(top.id)}/${esc(top.cover)}" alt="">
+        <div class="wt"><b>CROWN OF ASH</b>
+          <span>한요일 · 전체 ${EPS.length}화</span></div>
+      </div>
     </div>
-    <div class="eplist">` + EPS.map(e => `
+    <div class="epwrap"><div class="eplist">` + EPS.map(e => `
     <a class="ep" href="#webtoon!${esc(e.id)}">
       <img src="assets/webtoon/${esc(e.id)}/${esc(e.cover)}" alt="" loading="lazy">
       <div>
@@ -90,7 +93,7 @@ function webtoonHome() {
         ${e.title ? `<div class="sub">${esc(e.title)}</div>` : ""}
         <div class="n">${esc(e.date)}</div>
       </div>
-    </a>`).join("") + `</div>`;
+    </a>`).join("") + `</div></div>`;
 }
 
 function webtoonRead(id) {
