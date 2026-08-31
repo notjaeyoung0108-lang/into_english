@@ -3,7 +3,8 @@
   "id": "ep-g1-01",
   "label": "1화",
   "title": "서류에 없는 줄",
-  "cover": "ep1-0-title.webp",
+  "date": "2026.08.21",
+  "cover": "ep1-1-6.webp",
   "panels": [
    {
     "f": "ep1-0-title.webp",
@@ -179,7 +180,8 @@
   "id": "ep-g1-02",
   "label": "2화",
   "title": "스물넷",
-  "cover": "ep2-0-title.webp",
+  "date": "2026.08.31",
+  "cover": "ep2-1-7.webp",
   "panels": [
    {
     "f": "ep2-0-title.webp",
@@ -527,7 +529,8 @@
   "id": "ep-g1-01to03_digest",
   "label": "1~3화 다이제스트",
   "title": "",
-  "cover": "epd-0-title.webp",
+  "date": "2026.08.30",
+  "cover": "epd-1-7.webp",
   "panels": [
    {
     "f": "epd-0-title.webp",

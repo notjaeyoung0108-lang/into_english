@@ -74,13 +74,21 @@ $("gear").onclick = () => { location.hash = "#settings"; };
 function webtoonHome() {
   head("웹툰", false);
   if (!EPS.length) return $("app").innerHTML = `<div class="empty">올린 에피소드가 없습니다.</div>`;
-  $("app").innerHTML = `<div class="eplist">` + EPS.map(e => `
+  /* 표지는 가장 최근 화의 대표컷을 쓴다 — 지금 어디까지 그렸는지가 첫 인상이다. */
+  const top = [...EPS].reverse().find(e => !e.id.includes("digest")) || EPS[0];
+  $("app").innerHTML = `
+    <div class="hero">
+      <img src="assets/webtoon/${esc(top.id)}/${esc(top.cover)}" alt="">
+      <div class="wt"><b>CROWN OF ASH</b>
+        <span>한요일 · 전체 ${EPS.length}화</span></div>
+    </div>
+    <div class="eplist">` + EPS.map(e => `
     <a class="ep" href="#webtoon!${esc(e.id)}">
       <img src="assets/webtoon/${esc(e.id)}/${esc(e.cover)}" alt="" loading="lazy">
       <div>
-        <div class="lab">${esc(e.label)}</div>
-        <div class="ti">${esc(e.title || e.label)}</div>
-        <div class="n">${e.panels.length}컷</div>
+        <div class="ti">${esc(e.label)}</div>
+        ${e.title ? `<div class="sub">${esc(e.title)}</div>` : ""}
+        <div class="n">${esc(e.date)}</div>
       </div>
     </a>`).join("") + `</div>`;
 }
