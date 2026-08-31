@@ -85,7 +85,7 @@ function webtoonHome() {
           <span>한요일 · 전체 ${EPS.length}화</span></div>
       </div>
     </div>
-    <div class="epwrap"><div class="eplist">` + EPS.map(e => `
+    <div class="epwrap"><div class="eplist">` + [...EPS].reverse().map(e => `
     <a class="ep" href="#webtoon!${esc(e.id)}">
       <img src="assets/webtoon/${esc(e.id)}/${esc(e.cover)}" alt="" loading="lazy">
       <div>
