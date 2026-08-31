@@ -1,6 +1,11 @@
 /* into_english — 공부노트(anki_civil_note)의 뼈대를 그대로 쓴다.
    머리 · 본문 · 아래 탭 셋. 탭은 웹툰 / 문장 / 튜터. */
 
+/* 배달의민족 주아체 (우아한형제들 · SIL OFL 1.1). 자체 호스팅한다 —
+   CDN 이 죽으면 앱 인상이 통째로 바뀌는 자리라 남의 서버에 맡기지 않는다. */
+@font-face{ font-family:"BMJUA"; src:url("assets/font/BMJUA.woff2") format("woff2");
+  font-weight:normal; font-style:normal; font-display:swap; }
+
 :root{ --bg:#f4f5f7; --card:#fff; --ink:#1e242b; --dim:#6b747d; --line:#e2e5e9;
        --ok:#2f7d5d; --accent:#2f5d8a; --warn:#a8552f; --bad:#a33a3a;
        --cell:#e6e8ea;
@@ -16,7 +21,7 @@
 
 *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 html,body{ margin:0; background:var(--bg); color:var(--ink);
-  font-family:"Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  font-family:"BMJUA","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
   font-size:16px; line-height:1.6; }
 
 header{ position:sticky; top:0; z-index:10; background:var(--card);
@@ -57,6 +62,7 @@ main{ max-width:720px; margin:0 auto; padding:12px 14px calc(20px + var(--tabh))
 .empty{ text-align:center; color:var(--dim); font-size:13.5px; padding:26px 10px; }
 .cnt{ text-align:center; font-size:12.5px; color:var(--dim); margin-bottom:9px; }
 .cnt b{ color:var(--ink); font-weight:normal; font-variant-numeric:tabular-nums; }
+.cnt a{ color:var(--dim); }
 
 .acts{ position:sticky; bottom:calc(8px + var(--tabh)); margin-top:12px; }
 .flip{ width:100%; border:0; border-radius:14px; background:var(--ink); color:var(--bg);
@@ -94,7 +100,9 @@ input[type=text]{ width:100%; padding:10px 11px; border-radius:11px;
 
 /* 컷은 붙여 흘린다 — 웹툰은 한 장씩이 아니라 한 줄기로 읽힌다. */
 .strip{ margin:0 -14px; background:#000; }
-.strip img{ display:block; width:100%; }
+/* height:auto 가 핵심이다 — img 에 width/height 속성을 박아두고 CSS 로 폭만 100%
+   로 늘리면 높이는 속성값(px)에 묶여, 컷이 가로로 눌린 채 뜬다. */
+.strip img{ display:block; width:100%; height:auto; }
 .epnav{ display:flex; gap:8px; margin-top:12px; }
 .epnav a{ flex:1; text-align:center; text-decoration:none; color:var(--ink);
   border:1px solid var(--line); background:var(--card); border-radius:12px;
@@ -106,11 +114,17 @@ input[type=text]{ width:100%; padding:10px 11px; border-radius:11px;
 .fcard .meta{ font-size:11.5px; color:var(--dim); margin-bottom:10px;
   display:flex; gap:6px; flex-wrap:wrap; }
 .fcard .meta span{ border:1px solid var(--line); border-radius:8px; padding:1px 7px; }
-.fcard .pic{ width:calc(100% + 32px); margin:0 -16px 14px; display:block; background:var(--cell); }
-.fq .ko{ font-size:22px; line-height:1.45; letter-spacing:-.01em; }
-.fq .sit{ font-size:13px; color:var(--dim); margin-top:8px; }
+.fcard .pic{ width:calc(100% + 32px); height:auto; margin:0 -16px 14px;
+  display:block; background:var(--cell); }
+/* 앞면은 문장 한 줄뿐이다 — 가운데에 크게 앉히고 카드 키를 미리 잡아둬야
+   뒤집을 때 버튼이 발밑에서 움직이지 않는다. */
+.fq{ min-height:46vh; display:flex; flex-direction:column; justify-content:center; }
+.fq .en{ font-size:26px; line-height:1.4; letter-spacing:-.01em; }
+.fq .sit{ font-size:13px; color:var(--dim); margin-top:12px; }
 .fa .en{ font-size:23px; line-height:1.4; letter-spacing:-.01em; }
 .fa .ko{ font-size:15px; color:var(--dim); margin-top:6px; }
+.fa .sit{ font-size:13px; color:var(--dim); margin-top:14px;
+  border-top:1px solid var(--line); padding-top:11px; }
 .chunk{ margin-top:14px; border-top:1px solid var(--line); padding-top:12px; }
 .chunk .c{ font-size:16px; color:var(--accent); }
 .chunk .ck{ font-size:13.5px; color:var(--dim); margin-top:2px; }

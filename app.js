@@ -100,7 +100,7 @@ function webtoonRead(id) {
 let q = [], qi = 0, flip = false, fallback = "";
 
 function sentenceHome() {
-  head("문장", false);
+  head("학습 기록", true);
   const due = dueList().length, fresh = freshList().length;
   const learned = SENT.filter(it => { const s = stOf(it); return s && s.ok >= 2; }).length;
   const doneToday = S.log.filter(l => l.t >= today0()).length;
@@ -118,7 +118,7 @@ function sentenceHome() {
     <div class="slist">${peek.map(it => `
       <div class="srow"><div class="en">${esc(it.en)}</div>
         <div class="ko">${esc(it.ko)}</div></div>`).join("")}</div>`;
-  $("start").onclick = () => { q = []; location.hash = "#sentence!run"; };
+  $("start").onclick = () => { q = []; location.hash = "#sentence"; };
 }
 
 function sentenceRun() {
@@ -132,7 +132,7 @@ function sentenceRun() {
   }
   if (qi >= q.length) return sentenceDone();
   const it = q[qi];
-  head("문장 카드", true);
+  head("문장", false);   /* 이제 탭의 첫 화면이라 '뒤로' 갈 곳이 없다 */
 
   const pic = it.img
     ? `<img class="pic" src="assets/sentence/${esc(it.img)}" alt="" loading="lazy">` : "";
@@ -141,9 +141,11 @@ function sentenceRun() {
       ${it.speaker ? `<span>${esc(it.speaker)}</span>` : ""}
     </div>`;
 
-  const front = `${pic}${meta}<div class="fq">
-      <div class="ko">${esc(it.ko)}</div>
-      ${it.situation ? `<div class="sit">${esc(it.situation)}</div>` : ""}
+  /* 앞면은 영어 문장만 — 그림도 뜻도 없다. 그림이 앞에 있으면 뜻이 먼저 떠올라
+     외웠는지 아닌지를 스스로 속이게 된다. */
+  const front = `${meta}<div class="fq">
+      <div class="en">${esc(it.en)}</div>
+      ${it.audio ? `<div><button class="play" id="play">▶ 듣기</button></div>` : ""}
     </div>`;
   const back = `${pic}${meta}<div class="fa">
       <div class="en">${esc(it.en)}</div>
@@ -154,6 +156,7 @@ function sentenceRun() {
         <div class="ck">${esc(it.chunk_ko)}</div>
         ${it.note ? `<div class="nt">${esc(it.note)}</div>` : ""}
       </div>` : ""}
+      ${it.situation ? `<div class="sit">${esc(it.situation)}</div>` : ""}
     </div>`;
 
   const acts = flip
@@ -162,21 +165,22 @@ function sentenceRun() {
         return `<button class="g${g}" data-g="${g}"><b>${G[g].t}</b>` +
                `<span>${d}일 후</span></button>`;
       }).join("")}</div>`
-    : `<button class="flip" id="doflip">영어로 말해보고 → 정답 보기</button>`;
+    : `<button class="flip" id="doflip">뒷면 보기</button>`;
 
   $("app").innerHTML = `
-    <div class="cnt"><b>${qi + 1}</b> / ${q.length}${fallback ? " · " + fallback : ""}</div>
+    <div class="cnt"><b>${qi + 1}</b> / ${q.length}${fallback ? " · " + fallback : ""}
+      · <a href="#sentence!home">기록</a></div>
     <div class="fcard">${flip ? back : front}</div>
     <div class="acts">${acts}</div>`;
 
   const f = $("doflip");
   if (f) f.onclick = () => { flip = true; sentenceRun(); };
 
-  if (flip && it.audio) {
+  if (it.audio) {
     const a = new Audio(`assets/sentence/${it.audio}`);
     /* 뒤집자마자 한 번 들려준다. 브라우저가 자동재생을 막으면 조용히 넘어가고,
-       '다시 듣기' 는 사용자 클릭이라 항상 난다. */
-    a.play().catch(() => {});
+       듣기 버튼은 사용자 클릭이라 항상 난다. */
+    if (flip) a.play().catch(() => {});
     const pb = $("play");
     if (pb) pb.onclick = () => { a.currentTime = 0; a.play().catch(() => {}); };
   }
@@ -254,7 +258,9 @@ function route() {
     a.classList.toggle("on", a.dataset.t === name));
 
   if (name === "webtoon") return arg ? webtoonRead(arg) : webtoonHome();
-  if (name === "sentence") return arg === "run" ? sentenceRun() : sentenceHome();
+  /* 탭을 누르면 곧장 카드다 — 통계 화면을 앞에 두면 매일 그걸 지나쳐 누르게 된다.
+     통계는 #sentence!home 으로 따로 본다. */
+  if (name === "sentence") return arg === "home" ? sentenceHome() : sentenceRun();
   if (name === "tutor") return tutorHome();
   if (name === "settings") return settings();
   location.replace("#webtoon");
