@@ -6,14 +6,11 @@
 @font-face{ font-family:"BMJUA"; src:url("assets/font/BMJUA.woff2") format("woff2");
   font-weight:normal; font-style:normal; font-display:swap; }
 
-/* 카드 속 글은 프리텐다드다 (길형진 · SIL OFL 1.1). 주아체는 앱의 목소리고,
-   외울 문장은 획이 고른 글꼴로 읽어야 철자가 눈에 남는다. */
-@font-face{ font-family:"Pretendard";
-  src:url("assets/font/Pretendard-Regular.woff2") format("woff2");
-  font-weight:400; font-style:normal; font-display:swap; }
-@font-face{ font-family:"Pretendard";
-  src:url("assets/font/Pretendard-SemiBold.woff2") format("woff2");
-  font-weight:600; font-style:normal; font-display:swap; }
+/* 카드 속 글은 이서윤체. 이 글꼴만은 눈누 CDN 에서 불러온다 — 라이선스가
+   웹서버 탑재는 허용하되 파일 재배포는 금지해서, 공개 리포에 넣을 수 없다. */
+@font-face{ font-family:"LeeSeoyun";
+  src:url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2202-2@1.0/LeeSeoyun.woff") format("woff");
+  font-weight:normal; font-style:normal; font-display:swap; }
 
 :root{ --bg:#f4f5f7; --card:#fff; --ink:#1e242b; --dim:#6b747d; --line:#e2e5e9;
        --ok:#2f7d5d; --accent:#2f5d8a; --warn:#a8552f; --bad:#a33a3a;
@@ -120,29 +117,35 @@ input[type=text]{ width:100%; padding:10px 11px; border-radius:11px;
 /* ── 문장 카드 ── */
 .fcard{ background:var(--card); border:1px solid var(--line); border-radius:18px;
   padding:16px; box-shadow:var(--shadow); overflow:hidden;
-  font-family:"Pretendard","Apple SD Gothic Neo",system-ui,sans-serif;
+  font-family:"LeeSeoyun","Apple SD Gothic Neo",system-ui,sans-serif;
   text-align:center; }
 .fcard .meta{ font-size:11.5px; color:var(--dim); margin-bottom:10px;
   display:flex; gap:6px; flex-wrap:wrap; justify-content:center; }
 .fcard .meta span{ border:1px solid var(--line); border-radius:8px; padding:1px 7px; }
-.fcard .pic{ width:calc(100% + 32px); height:auto; margin:0 -16px 14px;
-  display:block; background:var(--cell); }
+/* 그림은 카드 맨 위에 붙어 카드의 윗변이 된다 — 위쪽만 둥글고 아래는 각져야
+   그림과 글이 한 장의 카드로 읽힌다. */
+.fcard.hasimg{ padding-top:0; }
+.fcard .pic{ width:calc(100% + 32px); margin:0 -16px 16px;
+  display:block; background:var(--cell);
+  aspect-ratio:4/3; object-fit:cover; object-position:center;
+  border-radius:17px 17px 0 0; }
 /* 앞면은 문장 한 줄뿐이다 — 가운데에 크게 앉히고 카드 키를 미리 잡아둬야
    뒤집을 때 버튼이 발밑에서 움직이지 않는다. */
 .fq{ min-height:46vh; display:flex; flex-direction:column; justify-content:center; }
 .fq .en{ font-size:26px; line-height:1.4; letter-spacing:-.01em; }
-.fq .sit{ font-size:13px; color:var(--dim); margin-top:12px; }
 .fa .en{ font-size:23px; line-height:1.4; letter-spacing:-.01em; }
 .fa .ko{ font-size:15px; color:var(--dim); margin-top:6px; }
-.fa .sit{ font-size:13px; color:var(--dim); margin-top:14px;
-  border-top:1px solid var(--line); padding-top:11px; }
 .chunk{ margin-top:14px; border-top:1px solid var(--line); padding-top:12px; }
 .chunk .c{ font-size:16px; color:var(--accent); }
 .chunk .ck{ font-size:13.5px; color:var(--dim); margin-top:2px; }
 .chunk .nt{ font-size:13.5px; margin-top:9px; line-height:1.6; }
-.play{ margin-top:13px; border:1px solid var(--line); background:var(--bg);
-  color:var(--ink); border-radius:12px; padding:10px 15px; font:inherit;
-  font-size:14px; cursor:pointer; }
+/* 듣기는 글자 대신 파형 아이콘 하나로 둔다 — 카드에서 읽을 것은 문장뿐이다. */
+.play{ margin-top:14px; width:46px; height:46px; padding:0; border:0;
+  border-radius:50%; background:var(--cell); color:var(--ink);
+  display:inline-flex; align-items:center; justify-content:center; cursor:pointer; }
+.play:active{ transform:scale(.94); }
+.play svg{ display:block; }
+.play rect{ fill:currentColor; }
 
 .slist{ display:grid; gap:8px; }
 .srow{ background:var(--card); border:1px solid var(--line); border-radius:13px;

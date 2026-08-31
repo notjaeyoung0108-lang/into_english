@@ -10,6 +10,13 @@ const esc = s => String(s ?? "").replace(/[&<>"]/g,
 const today0 = () => new Date().setHours(0, 0, 0, 0);
 const $ = id => document.getElementById(id);
 
+/* 파형 아이콘. 가운데가 높은 다섯 개 막대 — 소리가 난다는 뜻만 전하면 된다. */
+const WAVE = `<svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true">
+  ${[[2, 7], [6, 12], [10, 18], [14, 12], [18, 7]].map(([x, h]) =>
+    `<rect x="${x}" y="${(22 - h) / 2}" width="2.4" height="${h}" rx="1.2"/>`).join("")}
+</svg>`;
+const playBtn = `<button class="play" id="play" aria-label="듣기">${WAVE}</button>`;
+
 /* ── 저장소 ── */
 let S = { v: 1, tutor: TUTOR_DEFAULT, s: {}, log: [] };
 try {
@@ -144,18 +151,17 @@ function sentenceRun() {
      외웠는지 아닌지를 스스로 속이게 된다. */
   const front = `${meta}<div class="fq">
       <div class="en">${esc(it.en)}</div>
-      ${it.audio ? `<div><button class="play" id="play">▶ 듣기</button></div>` : ""}
+      ${it.audio ? `<div>${playBtn}</div>` : ""}
     </div>`;
   const back = `${pic}${meta}<div class="fa">
       <div class="en">${esc(it.en)}</div>
       <div class="ko">${esc(it.ko)}</div>
-      ${it.audio ? `<button class="play" id="play">▶ 다시 듣기</button>` : ""}
+      ${it.audio ? playBtn : ""}
       ${it.chunk ? `<div class="chunk">
         <div class="c">${esc(it.chunk)}</div>
         <div class="ck">${esc(it.chunk_ko)}</div>
         ${it.note ? `<div class="nt">${esc(it.note)}</div>` : ""}
       </div>` : ""}
-      ${it.situation ? `<div class="sit">${esc(it.situation)}</div>` : ""}
     </div>`;
 
   const acts = flip
@@ -169,7 +175,7 @@ function sentenceRun() {
   $("app").innerHTML = `
     <div class="cnt"><b>${qi + 1}</b> / ${q.length}${fallback ? " · " + fallback : ""}
       · <a href="#sentence!home">기록</a></div>
-    <div class="fcard">${flip ? back : front}</div>
+    <div class="fcard${flip && pic ? " hasimg" : ""}">${flip ? back : front}</div>
     <div class="acts">${acts}</div>`;
 
   const f = $("doflip");
