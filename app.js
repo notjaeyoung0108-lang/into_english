@@ -26,14 +26,17 @@ try {
 function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
 
 /* ── 자료 ── */
-let EPS = [], SENT = [];
+let EPS = [], SENT = [], V = "";
 async function load() {
-  const [a, b] = await Promise.all([
+  const [a, b, c] = await Promise.all([
     fetch("data/webtoon.json").then(r => r.json()),
     fetch("data/sentences.json").then(r => r.json()),
+    fetch("data/version.json").then(r => r.json()).catch(() => ({ v: "" })),
   ]);
-  EPS = a; SENT = b;
+  EPS = a; SENT = b; V = c.v || "";
 }
+/* 빌드 도장. 이름이 같은 채 내용만 바뀐 그림·소리를 브라우저가 새로 받게 한다. */
+const ver = u => V ? `${u}?v=${V}` : u;
 
 /* ── 일정 ────────────────────────────────────────────────
    몰랐어요 → 내일 · 헷갈려요 → 사흘 뒤 · 맞혔어요 → 연속 정답 수만큼 벌린다.
@@ -153,7 +156,7 @@ function sentenceRun() {
   head("문장", false);   /* 이제 탭의 첫 화면이라 '뒤로' 갈 곳이 없다 */
 
   const pic = it.img
-    ? `<img class="pic" src="assets/sentence/${esc(it.img)}" alt="" loading="lazy">` : "";
+    ? `<img class="pic" src="${esc(ver("assets/sentence/" + it.img))}" alt="" loading="lazy">` : "";
   /* 말투(casual · business)만 남긴다 — 화자 이름은 그림 만들 때 쓰는 값이지
      외우는 사람이 알아야 할 것이 아니다. */
   const meta = it.register ? `<div class="meta"><span>${esc(it.register)}</span></div>` : "";
@@ -193,7 +196,7 @@ function sentenceRun() {
   if (f) f.onclick = () => { flip = true; sentenceRun(); };
 
   if (it.audio) {
-    const a = new Audio(`assets/sentence/${it.audio}`);
+    const a = new Audio(ver("assets/sentence/" + it.audio));
     /* 뒤집자마자 한 번 들려준다. 브라우저가 자동재생을 막으면 조용히 넘어가고,
        듣기 버튼은 사용자 클릭이라 항상 난다. */
     if (flip) a.play().catch(() => {});
