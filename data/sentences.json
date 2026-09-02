@@ -9,7 +9,7 @@
   "situation": "카페 테이블에서 달력을 보며 약속 시간을 맞추는 장면",
   "register": "casual",
   "world": "reality",
-  "speaker": "hanyoil",
+  "speaker": "cha_hyun",
   "img": "s0001.webp",
   "audio": "s0001.mp3"
  },
@@ -37,7 +37,7 @@
   "situation": "휴대폰을 귀에 대고 메모를 끄적이는 장면",
   "register": "business",
   "world": "reality",
-  "speaker": "hanyoil",
+  "speaker": "cha_hyun",
   "img": "s0003.webp",
   "audio": "s0003.mp3"
  },
@@ -65,7 +65,7 @@
   "situation": "책상에 엎드려 빈 머그컵을 바라보는 장면",
   "register": "casual",
   "world": "reality",
-  "speaker": "hanyoil",
+  "speaker": "cha_hyun",
   "img": "s0005.webp",
   "audio": "s0005.mp3"
  },
@@ -93,7 +93,7 @@
   "situation": "발표 직전 복도에서 백지 메모지를 흔드는 장면",
   "register": "casual",
   "world": "reality",
-  "speaker": "hanyoil",
+  "speaker": "cha_hyun",
   "img": "s0007.webp",
   "audio": "s0007.mp3"
  },
@@ -121,7 +121,7 @@
   "situation": "현관에서 외투를 걸어두고 미안한 얼굴로 손을 드는 장면",
   "register": "casual",
   "world": "reality",
-  "speaker": "hanyoil",
+  "speaker": "cha_hyun",
   "img": "s0009.webp",
   "audio": "s0009.mp3"
  },
@@ -149,7 +149,7 @@
   "situation": "서류 더미에 둘러싸인 책상 앞에 앉은 장면",
   "register": "business",
   "world": "reality",
-  "speaker": "hanyoil",
+  "speaker": "cha_hyun",
   "img": "s0011.webp",
   "audio": "s0011.mp3"
  },
@@ -177,7 +177,7 @@
   "situation": "이마를 짚으며 캘린더 알림을 확인하는 장면",
   "register": "casual",
   "world": "reality",
-  "speaker": "hanyoil",
+  "speaker": "cha_hyun",
   "img": "s0013.webp",
   "audio": "s0013.mp3"
  },
@@ -191,7 +191,7 @@
   "situation": "옷걸이에 걸린 두 벌을 번갈아 보는 장면",
   "register": "casual",
   "world": "game_01",
-  "speaker": "garhan",
+  "speaker": "cha_hyun",
   "img": "s0014.webp",
   "audio": "s0014.mp3"
  },
@@ -205,7 +205,7 @@
   "situation": "지도 앱을 켠 채 갈림길 앞에 선 장면",
   "register": "casual",
   "world": "reality",
-  "speaker": "hanyoil",
+  "speaker": "cha_hyun",
   "img": "s0015.webp",
   "audio": "s0015.mp3"
  },
@@ -233,7 +233,7 @@
   "situation": "수첩에 한 줄 적으며 고개를 끄덕이는 장면",
   "register": "business",
   "world": "reality",
-  "speaker": "hanyoil",
+  "speaker": "cha_hyun",
   "img": "s0017.webp",
   "audio": "s0017.mp3"
  },
@@ -261,7 +261,7 @@
   "situation": "손을 살짝 들어 진정시키며 말하는 장면",
   "register": "casual",
   "world": "reality",
-  "speaker": "hanyoil",
+  "speaker": "cha_hyun",
   "img": "s0019.webp",
   "audio": "s0019.mp3"
  },
@@ -275,7 +275,7 @@
   "situation": "불 꺼진 사무실에서 가방을 메고 기지개를 켜는 장면",
   "register": "casual",
   "world": "game_01",
-  "speaker": "hanyoil",
+  "speaker": "garhan",
   "img": "s0020.webp",
   "audio": "s0020.mp3"
  }
