@@ -101,7 +101,7 @@ function webtoonRead(id) {
   const i = EPS.findIndex(e => e.id === id);
   if (i < 0) return webtoonHome();
   const e = EPS[i], prev = EPS[i - 1], next = EPS[i + 1];
-  head(`${e.label}${e.title ? " — " + e.title : ""}`, true);
+  head("", true);   /* 회차 제목은 첫 컷의 제목 카드가 이미 보여준다 */
   /* 세로 비율을 미리 잡아둔다 — 안 그러면 컷이 늦게 뜰 때마다 읽던 자리가 밀린다. */
   $("app").innerHTML = `<div class="strip">` + e.panels.map((p, n) => `
       <img src="assets/webtoon/${esc(e.id)}/${esc(p.f)}" alt="${n + 1}컷"
