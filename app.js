@@ -83,10 +83,26 @@ async function sweepCache() {
     if (!req.url.endsWith(`?v=${V}`)) box.delete(req);
 }
 
-/* 컷이 화면에 다가올 때 받는다. 한 화가 100컷이라 한꺼번에 부르면 안 된다. */
+/* 컷이 화면에 다가올 때 받는다. 한 화가 100컷이라 한꺼번에 부르면 안 된다.
+   여유를 크게 잡는 이유: 세로 2800px 짜리 긴 컷이 섞여 있어 1500px 로는
+   컷이 화면에 닿고 나서야 받기 시작해 그 컷만 빈칸으로 보인다. */
 const IO = new IntersectionObserver(es => es.forEach(e => {
   if (e.isIntersecting) { IO.unobserve(e.target); fill(e.target); }
-}), { rootMargin: "1500px 0px" });
+}), { rootMargin: "5000px 0px" });
+
+/* 그래도 아래로 빨리 훑으면 관찰자가 못 따라온다. 회차를 열면 남은 컷을
+   앞에서부터 조용히 받아 둔다 — 한 번에 셋씩, 스크롤을 막지 않는다. */
+let prefetchRun = 0;
+async function prefetch(paths) {
+  const mine = ++prefetchRun;
+  const queue = paths.slice();
+  const worker = async () => {
+    while (queue.length && mine === prefetchRun) {
+      try { await media(queue.shift()); } catch (e) { /* 한 컷 실패는 넘긴다 */ }
+    }
+  };
+  await Promise.all([worker(), worker(), worker()]);
+}
 
 function fill(img) {
   media(img.dataset.gh).then(u => { img.src = u; })
@@ -144,6 +160,7 @@ $("gear").onclick = () => { location.hash = "#settings"; };
 /* ══════════ 웹툰 ══════════ */
 function webtoonHome() {
   head("웹툰", false);
+  prefetchRun++;   /* 읽던 화의 남은 컷을 계속 받고 있을 이유가 없다 */
   if (!EPS.length) return $("app").innerHTML = `<div class="empty">올린 에피소드가 없습니다.</div>`;
   $("app").innerHTML = `
     <div class="hero">
@@ -181,6 +198,7 @@ function webtoonRead(id) {
       ${next ? `<a href="#webtoon!${esc(next.id)}">${esc(next.label)} →</a>` : ""}
     </div>`;
   hydrate();
+  prefetch(e.panels.map(p => `assets/webtoon/${e.id}/${p.f}`));
   window.scrollTo(0, 0);
 }
 
