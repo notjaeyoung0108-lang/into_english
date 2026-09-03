@@ -91,7 +91,6 @@ function webtoonHome() {
       <img src="assets/webtoon/${esc(e.id)}/${esc(e.cover)}" alt="" loading="lazy">
       <div>
         <div class="ti">${esc(e.label)}</div>
-        ${e.title ? `<div class="sub">${esc(e.title)}</div>` : ""}
         <div class="n">${esc(e.date)}</div>
       </div>
     </a>`).join("") + `</div></div>`;
