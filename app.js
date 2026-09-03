@@ -42,8 +42,10 @@ async function ghGet(path) {
   });
   if (r.status === 401 || r.status === 403)
     throw new Error("토큰이 거부됐습니다 — 만료됐거나 권한이 없습니다.");
+  /* 비공개 저장소는 권한이 없어도 404 로 답한다 — "없다"와 "못 본다"가 같아 보인다. */
   if (r.status === 404)
-    throw new Error(`저장소에 ${path} 가 없습니다.`);
+    throw new Error(`${path} 를 못 읽었습니다 — 파일이 없거나, ` +
+      `토큰에 ${GH.repo} 접근 권한이 없습니다.`);
   if (!r.ok) throw new Error(`${path} — HTTP ${r.status}`);
   return r;
 }
@@ -118,7 +120,7 @@ function hydrate() {
 let EPS = [], SENT = [], V = "";
 async function load() {
   const j = async p => JSON.parse(await (await ghGet(p)).text());
-  V = await j("data/version.json").then(o => o.v || "").catch(() => "");
+  V = (await j("data/version.json")).v || "";
   [EPS, SENT] = await Promise.all([j("data/webtoon.json"), j("data/sentences.json")]);
 }
 
@@ -417,6 +419,12 @@ function gate(msg) {
 async function boot() {
   if (!S.gh) return gate("");
   try {
+    const r = await fetch(`https://api.github.com/repos/${GH.owner}/${GH.repo}`,
+      { headers: { Authorization: `Bearer ${S.gh}`, Accept: "application/vnd.github+json" } });
+    if (!r.ok) throw new Error(r.status === 404
+      ? `${GH.repo} 를 못 봅니다 — 토큰의 Repository access 에 이 저장소가 들어 있는지, `
+        + `Permissions 에 Contents: Read-only 가 있는지 확인하세요.`
+      : `토큰이 거부됐습니다 (HTTP ${r.status}) — 만료됐을 수 있습니다.`);
     await load();
   } catch (err) {
     return gate(err.message);
