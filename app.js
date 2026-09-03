@@ -5,6 +5,10 @@ const DAY = 864e5;
 const KEY = "into_english.v1";
 const TUTOR_DEFAULT = "http://localhost:8787";
 
+/* 그림·소리·자료는 비공개 저장소에 있다. 이 껍데기는 공개돼 있어도 토큰 없이는
+   아무것도 못 읽는다. 토큰은 이 브라우저에만 저장된다. */
+const GH = { owner: "notjaeyoung0108-lang", repo: "into_english_media", ref: "main" };
+
 const esc = s => String(s ?? "").replace(/[&<>"]/g,
   c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const today0 = () => new Date().setHours(0, 0, 0, 0);
@@ -18,25 +22,89 @@ const WAVE = `<svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"
 const playBtn = `<button class="play" id="play" aria-label="듣기">${WAVE}</button>`;
 
 /* ── 저장소 ── */
-let S = { v: 1, tutor: TUTOR_DEFAULT, s: {}, log: [] };
+let S = { v: 1, tutor: TUTOR_DEFAULT, gh: "", s: {}, log: [] };
 try {
   const raw = localStorage.getItem(KEY);
   if (raw) S = Object.assign(S, JSON.parse(raw));
 } catch (e) { /* 사파리 프라이빗 등 — 기본값으로 그냥 간다 */ }
 function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
 
+/* ── 비공개 저장소에서 읽기 ──────────────────────────────
+   토큰은 헤더로만 보낼 수 있다. 그래서 <img src> 로는 안 되고, 컷 하나하나를
+   fetch 로 받아 blob 주소로 바꿔 끼운다. 브라우저 캐시가 안 먹는 대신
+   Cache API 에 직접 넣어 두 번째부터는 네트워크를 안 탄다. */
+const API = p =>
+  `https://api.github.com/repos/${GH.owner}/${GH.repo}/contents/${p}?ref=${GH.ref}`;
+
+async function ghGet(path) {
+  const r = await fetch(API(path), {
+    headers: { Authorization: `Bearer ${S.gh}`, Accept: "application/vnd.github.raw" },
+  });
+  if (r.status === 401 || r.status === 403)
+    throw new Error("토큰이 거부됐습니다 — 만료됐거나 권한이 없습니다.");
+  if (r.status === 404)
+    throw new Error(`저장소에 ${path} 가 없습니다.`);
+  if (!r.ok) throw new Error(`${path} — HTTP ${r.status}`);
+  return r;
+}
+
+const MEM = new Map();
+let CACHE;
+async function cacheBox() {
+  if (CACHE === undefined) {
+    try { CACHE = await caches.open("into_english.media"); }
+    catch (e) { CACHE = null; }   /* 사파리 프라이빗 등 — 매번 받는다 */
+  }
+  return CACHE;
+}
+
+/* 같은 이름의 파일이 새 빌드로 바뀌었으면 도장(V)이 달라져 캐시가 안 맞는다. */
+async function media(path) {
+  const key = `https://media.local/${path}?v=${V}`;
+  if (MEM.has(key)) return MEM.get(key);
+  const job = (async () => {
+    const box = await cacheBox();
+    let res = box && await box.match(key);
+    if (!res) {
+      res = await ghGet(path);
+      if (box) { try { await box.put(key, res.clone()); } catch (e) {} }
+    }
+    return URL.createObjectURL(await res.blob());
+  })();
+  MEM.set(key, job);
+  return job;
+}
+
+/* 지난 빌드의 찌꺼기를 치운다. 안 하면 컷을 다시 구울 때마다 캐시가 쌓인다. */
+async function sweepCache() {
+  const box = await cacheBox();
+  if (!box) return;
+  for (const req of await box.keys())
+    if (!req.url.endsWith(`?v=${V}`)) box.delete(req);
+}
+
+/* 컷이 화면에 다가올 때 받는다. 한 화가 100컷이라 한꺼번에 부르면 안 된다. */
+const IO = new IntersectionObserver(es => es.forEach(e => {
+  if (e.isIntersecting) { IO.unobserve(e.target); fill(e.target); }
+}), { rootMargin: "1500px 0px" });
+
+function fill(img) {
+  media(img.dataset.gh).then(u => { img.src = u; })
+    .catch(() => img.classList.add("bad"));
+}
+/* 화면을 새로 그린 뒤 반드시 부른다 — data-gh 만 있고 src 가 없는 그림을 잇는다. */
+function hydrate() {
+  document.querySelectorAll("img[data-gh]:not([src])").forEach(img =>
+    "eager" in img.dataset ? fill(img) : IO.observe(img));
+}
+
 /* ── 자료 ── */
 let EPS = [], SENT = [], V = "";
 async function load() {
-  const [a, b, c] = await Promise.all([
-    fetch("data/webtoon.json").then(r => r.json()),
-    fetch("data/sentences.json").then(r => r.json()),
-    fetch("data/version.json").then(r => r.json()).catch(() => ({ v: "" })),
-  ]);
-  EPS = a; SENT = b; V = c.v || "";
+  const j = async p => JSON.parse(await (await ghGet(p)).text());
+  V = await j("data/version.json").then(o => o.v || "").catch(() => "");
+  [EPS, SENT] = await Promise.all([j("data/webtoon.json"), j("data/sentences.json")]);
 }
-/* 빌드 도장. 이름이 같은 채 내용만 바뀐 그림·소리를 브라우저가 새로 받게 한다. */
-const ver = u => V ? `${u}?v=${V}` : u;
 
 /* ── 일정 ────────────────────────────────────────────────
    몰랐어요 → 내일 · 헷갈려요 → 사흘 뒤 · 맞혔어요 → 연속 정답 수만큼 벌린다.
@@ -81,19 +149,20 @@ function webtoonHome() {
     <div class="hero">
       <div class="band"></div>
       <div class="in">
-        <img src="${esc(ver("assets/webtoon/cover.webp"))}" alt="">
+        <img data-gh="assets/webtoon/cover.webp" data-eager alt="">
         <div class="wt"><b>차현의 게임일기</b>
           <span>전체 ${EPS.length}화</span></div>
       </div>
     </div>
     <div class="epwrap"><div class="eplist">` + [...EPS].reverse().map(e => `
     <a class="ep" href="#webtoon!${esc(e.id)}">
-      <img src="assets/webtoon/${esc(e.id)}/${esc(e.cover)}" alt="" loading="lazy">
+      <img data-gh="assets/webtoon/${esc(e.id)}/${esc(e.cover)}" alt="">
       <div>
         <div class="ti">${esc(e.label)}</div>
         <div class="n">${esc(e.date)}</div>
       </div>
     </a>`).join("") + `</div></div>`;
+  hydrate();
 }
 
 function webtoonRead(id) {
@@ -103,14 +172,15 @@ function webtoonRead(id) {
   head("", true);   /* 회차 제목은 첫 컷의 제목 카드가 이미 보여준다 */
   /* 세로 비율을 미리 잡아둔다 — 안 그러면 컷이 늦게 뜰 때마다 읽던 자리가 밀린다. */
   $("app").innerHTML = `<div class="strip">` + e.panels.map((p, n) => `
-      <img src="assets/webtoon/${esc(e.id)}/${esc(p.f)}" alt="${n + 1}컷"
+      <img data-gh="assets/webtoon/${esc(e.id)}/${esc(p.f)}" alt="${n + 1}컷"
            width="900" height="${Math.round(900 * p.r)}"
-           loading="${n < 3 ? "eager" : "lazy"}" decoding="async">`).join("") + `</div>
+           ${n < 3 ? "data-eager" : ""} decoding="async">`).join("") + `</div>
     <div class="epnav">
       ${prev ? `<a href="#webtoon!${esc(prev.id)}">← ${esc(prev.label)}</a>` : ""}
       <a href="#webtoon">목록</a>
       ${next ? `<a href="#webtoon!${esc(next.id)}">${esc(next.label)} →</a>` : ""}
     </div>`;
+  hydrate();
   window.scrollTo(0, 0);
 }
 
@@ -153,7 +223,7 @@ function sentenceRun() {
   head("문장", false);   /* 이제 탭의 첫 화면이라 '뒤로' 갈 곳이 없다 */
 
   const pic = it.img
-    ? `<img class="pic" src="${esc(ver("assets/sentence/" + it.img))}" alt="" loading="lazy">` : "";
+    ? `<img class="pic" data-gh="assets/sentence/${esc(it.img)}" data-eager alt="">` : "";
   /* 말투(casual · business)만 남긴다 — 화자 이름은 그림 만들 때 쓰는 값이지
      외우는 사람이 알아야 할 것이 아니다. */
   const meta = it.register ? `<div class="meta"><span>${esc(it.register)}</span></div>` : "";
@@ -189,16 +259,21 @@ function sentenceRun() {
     <div class="fcard${flip && pic ? " hasimg" : ""}">${flip ? back : front}</div>
     <div class="acts">${acts}</div>`;
 
+  hydrate();
+
   const f = $("doflip");
   if (f) f.onclick = () => { flip = true; sentenceRun(); };
 
   if (it.audio) {
-    const a = new Audio(ver("assets/sentence/" + it.audio));
-    /* 뒤집자마자 한 번 들려준다. 브라우저가 자동재생을 막으면 조용히 넘어가고,
-       듣기 버튼은 사용자 클릭이라 항상 난다. */
-    if (flip) a.play().catch(() => {});
-    const pb = $("play");
-    if (pb) pb.onclick = () => { a.currentTime = 0; a.play().catch(() => {}); };
+    const wasFlip = flip;
+    media("assets/sentence/" + it.audio).then(u => {
+      const a = new Audio(u);
+      /* 뒤집자마자 한 번 들려준다. 브라우저가 자동재생을 막으면 조용히 넘어가고,
+         듣기 버튼은 사용자 클릭이라 항상 난다. */
+      if (wasFlip) a.play().catch(() => {});
+      const pb = $("play");
+      if (pb) pb.onclick = () => { a.currentTime = 0; a.play().catch(() => {}); };
+    }).catch(() => {});
   }
 
   document.querySelectorAll("#grades button").forEach(b => {
@@ -250,6 +325,14 @@ function settings() {
       <button class="pri" id="tsave">저장</button>
       <button id="treset">기본값</button>
     </div>
+    <div class="sect">읽기 토큰</div>
+    <div class="note">${S.gh ? "저장돼 있습니다 — <code>…" + esc(S.gh.slice(-6)) + "</code>" :
+      "없습니다."} 만료되면 새로 만들어 넣으세요.</div>
+    <div class="tools">
+      <button id="tokclear">토큰 지우기</button>
+      <button id="cacheclear">받아둔 그림 지우기</button>
+    </div>
+
     <div class="sect">학습 기록</div>
     <div class="note">기록이 있는 문장 ${seen}개 · 채점 ${S.log.length}회.
       이 브라우저에만 저장됩니다.</div>
@@ -260,6 +343,15 @@ function settings() {
     $("tsave").textContent = "저장됨";
   };
   $("treset").onclick = () => { $("turl").value = TUTOR_DEFAULT; };
+  $("tokclear").onclick = () => {
+    if (!confirm("토큰을 지웁니다. 다시 넣어야 자료가 보입니다.")) return;
+    S.gh = ""; save(); location.hash = "#webtoon"; boot();
+  };
+  $("cacheclear").onclick = async () => {
+    MEM.clear();
+    try { await caches.delete("into_english.media"); } catch (e) {}
+    $("cacheclear").textContent = "지웠습니다";
+  };
   $("wipe").onclick = () => {
     if (!confirm("문장 학습 기록을 모두 지웁니다. 계속할까요?")) return;
     S.s = {}; S.log = []; save(); q = []; settings();
@@ -282,7 +374,38 @@ function route() {
   location.replace("#webtoon");
 }
 
-addEventListener("hashchange", route);
-load().then(route).catch(err => {
-  $("app").innerHTML = `<div class="empty">자료를 못 읽었습니다.<br>${esc(err.message)}</div>`;
-});
+/* ══════════ 토큰 문 ══════════
+   자료가 비공개 저장소에 있으므로 토큰이 없으면 아무것도 못 그린다.
+   이 화면이 사실상의 로그인이다. */
+function gate(msg) {
+  head("into english", false);
+  $("app").innerHTML = `
+    <div class="sect">읽기 토큰</div>
+    <div class="note">자료는 비공개 저장소(<code>${esc(GH.repo)}</code>)에 있습니다.
+      GitHub 에서 만든 읽기 전용 토큰을 한 번 넣어 두면 이 브라우저에 저장됩니다.</div>
+    ${msg ? `<div class="note" style="color:#e2726e">${esc(msg)}</div>` : ""}
+    <input type="password" id="tok" placeholder="github_pat_..."
+           autocapitalize="off" autocomplete="off" spellcheck="false">
+    <div class="tools"><button class="pri" id="tokok">확인</button></div>`;
+  $("tokok").onclick = async () => {
+    const v = $("tok").value.trim();
+    if (!v) return;
+    $("tokok").textContent = "확인 중…";
+    S.gh = v; save();
+    boot();
+  };
+}
+
+async function boot() {
+  if (!S.gh) return gate("");
+  try {
+    await load();
+  } catch (err) {
+    return gate(err.message);
+  }
+  sweepCache();
+  route();
+}
+
+addEventListener("hashchange", () => { if (S.gh && EPS.length) route(); });
+boot();
